@@ -8,16 +8,33 @@
   var provider = {
     _html : '<div class="row">' +
               '<label for="gizmo_content_paragraph" class="col col_12_12">Timetable</label>' +
-              '<textarea name="gizmo_content_paragraph" class="col col_12_12"></textarea>' +
+              '<div class="row">' +
+                '<select class="col col_12_12" name="gizmo_content_place"></select>' +
+              '</div>' +
+              '<div class="row">' +
+                '<label class="col col_4_12" for="gizmo_content_pagesize">Einträge pro Seite</label>' +
+                '<input class="col col_2_12" type="number" name="gizmo_content_pagesize" step="1" min="1" max="15" value="5" />' +
+              '</div>' +
             '</div>',
 
     html : function() {
-      return this._html;
+      var options = '';
+      var places = makae_gm_stf.settings.places;
+      for(var i in places)
+        options += '<option value="' + places[i]['key'] + '">' + places[i]['value'] + '</option>';
+
+      var $html = $(this._html);
+      $html.find('select[name="gizmo_content_place"]').append($(options));
+
+      return $html;
     },
 
     render : function(gizmo, callback) {
-      $html = $(this.html());
-      $html.find('textarea[name="gizmo_content_paragraph"]').val(gizmo.content_data);
+      $html = this.html();
+      if(gizmo.content_data.place)
+        $html.find('textarea[name="gizmo_content_place"]').val(gizmo.content_data.place);
+      if(gizmo.content_data.pagesize)
+        $html.find('input[name="gizmo_content_pagesize"]').val(gizmo.content_data.pagesize);
       callback($html);
     },
 
@@ -26,7 +43,10 @@
     },
 
     form_data : function(gizmo, form) {
-      return $(form).find('textarea[name="gizmo_content_paragraph"]').val();
+      return {
+        'place' : $(form).find('textarea[name="gizmo_content_place"]').val(),
+        'pagesize' : $(form).find('textarea[name="gizmo_content_pagesize"]').val()
+      }
     },
 
     save : function(gizmo, form) {
@@ -35,7 +55,7 @@
 
     get_data : function(gizmo, callback) {
       var data = {
-        place : 'test'//gizmo.content_data.place
+        place : gizmo.content_data.place
       };
       data = $.extend(makae_gm_stf.ajax_params, data);
 
