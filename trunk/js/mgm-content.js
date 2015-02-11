@@ -31,10 +31,18 @@
 
     render : function(gizmo, callback) {
       $html = this.html();
+      if(typeof gizmo.content_data == 'undefined') {
+        gizmo.content_data = {};
+        callback($html);
+        return;
+      }
+
       if(gizmo.content_data.place)
-        $html.find('textarea[name="gizmo_content_place"]').val(gizmo.content_data.place);
+        $html.find('[name="gizmo_content_place"]').val(gizmo.content_data.place);
+
       if(gizmo.content_data.pagesize)
-        $html.find('input[name="gizmo_content_pagesize"]').val(gizmo.content_data.pagesize);
+        $html.find('[name="gizmo_content_pagesize"]').val(gizmo.content_data.pagesize);
+
       callback($html);
     },
 
@@ -44,8 +52,8 @@
 
     form_data : function(gizmo, form) {
       return {
-        'place' : $(form).find('textarea[name="gizmo_content_place"]').val(),
-        'pagesize' : $(form).find('textarea[name="gizmo_content_pagesize"]').val()
+        'place' : $(form).find('[name="gizmo_content_place"]').val(),
+        'pagesize' : $(form).find('[name="gizmo_content_pagesize"]').val()
       }
     },
 
