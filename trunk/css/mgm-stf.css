@@ -1,0 +1,14 @@
+.mgm_wrapper ul.timelist {
+  margin: 0 !important;
+  padding: 0 !important;
+  list-style-type: none !important;
+}
+
+.mgm_wrapper .timelist .time {
+  display: inline-block;
+  margin-right: 0.4em;
+}
+
+.mgm_wrapper .timelist .event {
+  display: inline-block;
+}

@@ -61,7 +61,7 @@ class Makae_GM_STF {
 
   public function generate_content($list, $title) {
     $list = $this->generate_timelist($list);
-    $html = '<h5>' . $title . '<h5>';
+    $html = '<h5>' . $title . '</h5>';
     $html .= $list;
     return $html;
   }
@@ -126,7 +126,7 @@ class Makae_GM_STF {
     );
     $sql = $this->sql_template($sql, $data);
     $data = $this->query($sql);
-    return $data[0]['disz_bez'];
+    return $data[0]['anlage_bez'];
   }
 
   private function sql_template($string, $replace, $escape=true, $prefix = '{%', $suffix = '%}') {
@@ -139,8 +139,12 @@ class Makae_GM_STF {
 
   public function generate_timelist($list) {
     $html = '<ul class="timelist">' . "\n";
-    foreach($list as $entry)
-      $html .= '<li><span class="time">' . $entry['startzeit'] . '</span>' . $entry['label'] . '</li>' . "\n";
+    foreach($list as $entry) {
+      $matches = array();
+      preg_match("/(\d{2}:\d{2})(:\d{2})?/", $entry['startzeit'], $matches);
+      $start = $matches[1];
+      $html .= '<li><span class="time">' . $start . '</span><span class="event">' . $entry['label'] . '</span></li>' . "\n";
+    }
     $html .= '</ul>' . "\n";
     return $html;
   }
