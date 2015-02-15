@@ -8,6 +8,7 @@ class Makae_GM_STF {
     add_action('wp_enqueue_scripts', array($this, 'wp_localize_scripts'), 100);
     add_action('admin_enqueue_scripts', array($this, 'wp_localize_scripts'), 100);
     add_action('wp_ajax_mgm_stf_get_timetable', array($this,'ajax_get_timetable'));
+    add_action('wp_ajax_nopriv_mgm_stf_get_timetable', array($this,'ajax_get_timetable'));
   }
 
   public static function instance() {
