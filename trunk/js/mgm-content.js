@@ -1,5 +1,5 @@
 /**
- * Section for providing the default providers
+ * STF2015 Conent provider and content_form_renderer
  *
  * @author: M. Käser
  * @date: 23.12.2014
