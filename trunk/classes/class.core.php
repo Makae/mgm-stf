@@ -2,8 +2,9 @@
 
 class Makae_GM_STF {
   private static $instance;
-
+  private $mapping;
   private function __construct() {
+    $this->mapping = unserialize(MGM_PLACE_MAPPING);
     add_action('makae_gm_enqueue', array($this, 'makae_gm_enqueue'));
     add_action('wp_enqueue_scripts', array($this, 'wp_localize_scripts'), 100);
     add_action('admin_enqueue_scripts', array($this, 'wp_localize_scripts'), 100);
@@ -76,11 +77,12 @@ class Makae_GM_STF {
       $limit = 'LIMIT {%from%}, {%num%}';
     }
     $top_data = array('SELECT' => $select, 'LIMIT' => $limit);
+    $disciplines = $this->mapping[$place]['disciplines'];
 
     $sql = '{%SELECT%} ' .
            '  FROM `{%table%}`' . "\n" .
            '  WHERE UNIX_TIMESTAMP(CONCAT(`datum` , " ", `endzeit`)) >= UNIX_TIMESTAMP("{%now%}") ' . "\n" .
-           '    AND `anlage_bez` = "{%place%}" ' . "\n" .
+           '    AND {%conditions%} ' . "\n" .
            '  ORDER BY `datum` ASC, `startzeit` ASC, `endzeit` DESC ' . "\n" .
            ' {%LIMIT%}';
     $sql = $this->sql_template($sql, $top_data, false);
@@ -96,39 +98,71 @@ class Makae_GM_STF {
       'num' => $num
     );
     $sql = $this->sql_template($sql, $data);
+    $sql = $this->sql_template($sql, array('conditions' => $this->orSql('disz_kurz', $disciplines)), false);
+
     return $this->query($sql);
   }
 
-  public function get_places() {
-    $sql = 'SELECT DISTINCT(`anlage_bez`) ' . "\n" .
-           '  FROM `{%table%}`' . "\n";
+  private function orSql($column, $array) {
+    array_walk($array, 'esc_sql');
+    if(count($array) > 0 && is_string($array[0])) {
+      $glue = '\', \'';
+      $left = '\'';
+      $right = '\'';
+    } else {
+      $glue = ', ';
+      $left = '';
+      $right = '';
+    }
+    $set = $left . implode($glue, $array) . $right;
+    return " $column IN ($set)";
+  }
 
-    $data = array(
-      'table' => MGM_STF_TABLE
-    );
-    $sql = $this->sql_template($sql, $data);
-    $data = $this->query($sql);
-    $keyval_list = array();
-    foreach($data as $key => $value)
-      $list[] = array('key' => $value['anlage_bez'], 'value' => $value['anlage_bez']);
+  public function get_places() {
+    foreach($this->mapping as $key => $entry)
+      $list[] = array('key' => $key, 'value' => $entry['label']);
     return $list;
   }
 
   public function get_place_name($place) {
-    //@todo: change to full anlage_bez as soon as available
-    $sql = 'SELECT anlage_bez ' . "\n" .
-           '  FROM `{%table%}`' . "\n" .
-           '  WHERE `anlage_bez` = "{%place%}" ' . "\n" .
-           ' LIMIT 0,1 ';
+    $places = $this->get_places();
 
-    $data = array(
-      'table' => MGM_STF_TABLE,
-      'place' => $place,
-    );
-    $sql = $this->sql_template($sql, $data);
-    $data = $this->query($sql);
-    return $data[0]['anlage_bez'];
+    foreach($places as $value)
+      if($value['key'] == $place)
+        return $value['value'];
+    return null;
   }
+
+  // public function get_places() {
+  //   $sql = 'SELECT DISTINCT(`anlage_bez`) ' . "\n" .
+  //          '  FROM `{%table%}`' . "\n";
+
+  //   $data = array(
+  //     'table' => MGM_STF_TABLE
+  //   );
+  //   $sql = $this->sql_template($sql, $data);
+  //   $data = $this->query($sql);
+  //   $keyval_list = array();
+  //   foreach($data as $key => $value)
+  //     $list[] = array('key' => $value['anlage_bez'], 'value' => $value['anlage_bez']);
+  //   return $list;
+  // }
+
+  // public function get_place_name($place) {
+  //   //@todo: change to full anlage_bez as soon as available
+  //   $sql = 'SELECT anlage_bez ' . "\n" .
+  //          '  FROM `{%table%}`' . "\n" .
+  //          '  WHERE `anlage_bez` = "{%place%}" ' . "\n" .
+  //          ' LIMIT 0,1 ';
+
+  //   $data = array(
+  //     'table' => MGM_STF_TABLE,
+  //     'place' => $place,
+  //   );
+  //   $sql = $this->sql_template($sql, $data);
+  //   $data = $this->query($sql);
+  //   return $data[0]['anlage_bez'];
+  // }
 
   private function sql_template($string, $replace, $escape=true, $prefix = '{%', $suffix = '%}') {
     foreach($replace as $search => $replace) {
