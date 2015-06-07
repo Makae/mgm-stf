@@ -12,3 +12,43 @@
 .mgm_wrapper .timelist .event {
   display: inline-block;
 }
+
+
+.mgm_wrapper .mgm_group .mgm_group_title {
+  display:block;
+  padding: 0.5em;
+  margin-bottom: 1em;
+  border-bottom: 1px dashed #AAAAAA;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.mgm_wrapper .mgm_group .mgm_group_title:after {
+  display: inline-block;
+  float: right;
+  content: '\f140';
+  font: 400 20px/1 dashicons;
+}
+
+.mgm_wrapper .mgm_group.closed .mgm_group_title:after {
+  content: '\f142';
+}
+
+.mgm_wrapper .mgm_group .mgm_group_content {
+  overflow: hidden;
+}
+
+.bad-weather-row > div.col {
+  text-align: left;
+  margin-bottom: 1em;
+}
+
+.mgm_edit .bad-weather-row label {
+  box-sizing: border-box;
+  padding-left: 8px;
+  margin-bottom: 8px;
+}
+
+.mgm_edit .bad-weather-row > label {
+  padding-left: 0;
+}
