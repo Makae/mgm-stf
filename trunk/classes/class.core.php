@@ -38,14 +38,12 @@ class Makae_GM_STF {
 
   public function ajax_get_timetable() {
     $place = array_key_exists('place', $_REQUEST) ? $_REQUEST['place'] : null;
-    $num = array_key_exists('num', $_REQUEST) ? $_REQUEST['num'] : 5;
+    //$num = array_key_exists('num', $_REQUEST) ? $_REQUEST['num'] : 5;
+    $num = 15;
     $page = array_key_exists('page', $_REQUEST) ? $_REQUEST['page'] : 1;
 
     if(is_null($place))
       throw new Exception("No suitable Place found");
-
-    error_reporting(E_ALL);
-    ini_set('display_errors', 1);
 
     $discipline = $this->get_place_name($place);
     $list = $this->get_timetable($place, $num, $page);
@@ -62,8 +60,13 @@ class Makae_GM_STF {
   }
 
   public function generate_content($list, $title) {
-    $list = $this->generate_timelist($list);
+    $num = count($list);
     $html = '<h5>' . $title . '</h5>';
+
+    if($num == 0)
+      return $html . '<p>' . MGM_STF_TEXT_NONE_FOUND . '</p>';
+
+    $list = $this->generate_timelist($list);
     $html .= $list;
     return $html;
   }
@@ -73,7 +76,7 @@ class Makae_GM_STF {
       $select = 'SELECT COUNT(*) ' . "\n";
       $limit = '';
     } else {
-      $select = 'SELECT CONCAT(`prefix`, " ", `ort`, " (", riegen_nr, ")") as label, startzeit, endzeit ' . "\n";
+      $select = 'SELECT CONCAT(`prefix`, " ", `ort`, " (", riegen_nr, ")") as label, startzeit, endzeit, datum ' . "\n";
       $limit = 'LIMIT {%from%}, {%num%}';
     }
     $top_data = array('SELECT' => $select, 'LIMIT' => $limit);
@@ -88,11 +91,10 @@ class Makae_GM_STF {
     $sql = $this->sql_template($sql, $top_data, false);
     $data = array(
       'table' => MGM_STF_TABLE,
-      //'today' => 'DATE()',
-      'today' => MGM_TMP_TODAY,
-      //'time' => 'CURTIME()',
-      'time' => MGM_TMP_TIME,
-      'now' => MGM_TMP_NOW,
+      'today' => 'DATE()',
+      'now' => 'CURTIME()',
+      //'today' => MGM_TMP_TODAY,
+      //'now' => MGM_TMP_NOW,
       'place' => $place,
       'from' => $page-1,
       'num' => $num
@@ -174,7 +176,12 @@ class Makae_GM_STF {
 
   public function generate_timelist($list) {
     $html = '<ul class="timelist">' . "\n";
+    $previous_date = false;
     foreach($list as $entry) {
+      if($previous_date != $entry['datum']) {
+        $html .= '<li class="mgm-stf-date"><strong>' . $this->translate_date($entry['datum']) . '</strong></li>';
+        $previous_date = $entry['datum'];
+      }
       $matches = array();
       preg_match("/(\d{2}:\d{2})(:\d{2})?/", $entry['startzeit'], $matches);
       $start = $matches[1];
@@ -189,6 +196,35 @@ class Makae_GM_STF {
     $result = $wpdb->get_results($sql, ARRAY_A);
 
     return $result;
+  }
+
+  private function translate_date($date) {
+    $trans = array(
+        'Monday'    => 'Montag',
+        'Tuesday'   => 'Dienstag',
+        'Wednesday' => 'Mittwoch',
+        'Thursday'  => 'Donnerstag',
+        'Friday'    => 'Freitag',
+        'Saturday'  => 'Samstag',
+        'Sunday'    => 'Sonntag',
+        'Mon'       => 'Mo',
+        'Tue'       => 'Di',
+        'Wed'       => 'Mi',
+        'Thu'       => 'Do',
+        'Fri'       => 'Fr',
+        'Sat'       => 'Sa',
+        'Sun'       => 'So',
+        'January'   => 'Januar',
+        'February'  => 'Februar',
+        'March'     => 'März',
+        'May'       => 'Mai',
+        'June'      => 'Juni',
+        'July'      => 'Juli',
+        'October'   => 'Oktober',
+        'December'  => 'Dezember'
+    );
+    $strdate = date('l, d. F Y', strtotime($date));
+    return strtr($strdate, $trans);
   }
 
 }

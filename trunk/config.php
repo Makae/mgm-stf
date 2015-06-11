@@ -2,14 +2,14 @@
 define('MGM_STF_URL', plugin_dir_url(__FILE__));
 define('MGM_STF_DIR', plugin_dir_path(__FILE__));
 define('MGM_STF_TABLE', 'mgm_timetable');
-define('MGM_TMP_TODAY', '2015-06-20');
-define('MGM_TMP_TIME', '09' . date(':i:s', time()));
 
-define('MGM_TMP_NOW', '2015-06-20 09' . date(':i:s', time()));
+/*define('MGM_TMP_TODAY', '2015-06-12');
+define('MGM_TMP_NOW', '2015-06-12 20' . date(':i:s', time()));*/
+define('MGM_STF_TEXT_NONE_FOUND', 'Wir haben für diese Uhrzeit und Disziplin keinen Verein gefunden.');
 define('MGM_PLACE_MAPPING', serialize(array(
   'wurf' => array(
     'label' => 'Würfe',
-    'disciplines' => array('SB', 'SPE')
+    'disciplines' => array('SB', 'SPE', 'WU')
   ),
   'kugel' => array(
     'label' => 'Kugelstossen',
@@ -29,7 +29,7 @@ define('MGM_PLACE_MAPPING', serialize(array(
   ),
   'rundbahn' => array(
     'label' => 'Rundbahn (400 / 800)',
-    'disciplines' => array()
+    'disciplines' => array('400', '800')
   ),
   'fit & fun' => array(
     'label' => 'Fit und Fun',
@@ -37,7 +37,7 @@ define('MGM_PLACE_MAPPING', serialize(array(
   ),
   'gymnastikfelder' => array(
     'label' => 'Bühne & Gymnastikfelder',
-    'disciplines' => array('GYG', 'TAE', 'GYK')
+    'disciplines' => array('GYG', 'TAE', 'GYK', 'GYB')
   ),
   'turnhalle' => array(
     'label' => 'Turnhalle (EGT, RE, FTU)',
@@ -54,8 +54,13 @@ define('MGM_PLACE_MAPPING', serialize(array(
   'hochsprung' => array(
     'label' => 'Hochsprung',
     'disciplines' => array('HO')
+  ),
+  'korbball' => array(
+    'label' => 'Fachtest Korbball',
+    'disciplines' => array('FTK')
+  ),
+  'volleyball' => array(
+    'label' => 'Fachtest Volleyball',
+    'disciplines' => array('FTV')
   )
-  // ????????????????
-  // array('WE', 'WE2'),
-  // array('WE', 'WE1'),
 )));
